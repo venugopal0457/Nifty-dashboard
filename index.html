@@ -29,7 +29,7 @@ font-size:22px;
 }
 
 .value{
-font-size:28px;
+font-size:30px;
 margin-top:10px;
 font-weight:bold;
 }
@@ -61,12 +61,15 @@ Market Bias
 
 async function loadData(){
 
-let url="https://api.allorigins.win/raw?url=https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
+let url="https://api.allorigins.win/get?url=https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
 
 try{
 
 let response=await fetch(url);
-let data=await response.json();
+
+let proxyData=await response.json();
+
+let data=JSON.parse(proxyData.contents);
 
 let records=data.records.data;
 
