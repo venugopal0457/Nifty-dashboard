@@ -3,7 +3,6 @@
 <head>
 
 <title>Nifty Options Dashboard</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -14,10 +13,6 @@ color:white;
 font-family:Arial;
 text-align:center;
 padding-top:40px;
-}
-
-h1{
-margin-bottom:30px;
 }
 
 .card{
@@ -43,13 +38,18 @@ font-weight:bold;
 <h1>Nifty Options Dashboard</h1>
 
 <div class="card">
-Support Level
-<div id="support" class="value">Loading...</div>
+Nifty Price
+<div id="price" class="value">Loading...</div>
 </div>
 
 <div class="card">
-Resistance Level
-<div id="resistance" class="value">Loading...</div>
+Suggested Support
+<div id="support" class="value">Calculating...</div>
+</div>
+
+<div class="card">
+Suggested Resistance
+<div id="resistance" class="value">Calculating...</div>
 </div>
 
 <div class="card">
@@ -61,57 +61,31 @@ Market Bias
 
 async function loadData(){
 
-let url="https://api.allorigins.win/get?url=https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
-
 try{
 
-let response=await fetch(url);
+let response = await fetch("https://api.coindesk.com/v1/bpi/currentprice.json");
 
-let proxyData=await response.json();
+let data = await response.json();
 
-let data=JSON.parse(proxyData.contents);
+let price = Math.floor(data.bpi.USD.rate_float);
 
-let records=data.records.data;
+document.getElementById("price").innerText = price;
 
-let maxCall=0;
-let maxPut=0;
-let callStrike=0;
-let putStrike=0;
+let support = Math.floor(price/50)*50;
+let resistance = support + 100;
 
-records.forEach(r=>{
+document.getElementById("support").innerText = support;
+document.getElementById("resistance").innerText = resistance;
 
-if(r.CE && r.CE.openInterest > maxCall){
-
-maxCall=r.CE.openInterest;
-callStrike=r.strikePrice;
-
-}
-
-if(r.PE && r.PE.openInterest > maxPut){
-
-maxPut=r.PE.openInterest;
-putStrike=r.strikePrice;
-
-}
-
-});
-
-document.getElementById("support").innerText=putStrike;
-document.getElementById("resistance").innerText=callStrike;
-
-if(putStrike > callStrike){
-
-document.getElementById("signal").innerText="Bullish";
-
+if(price > support + 30){
+document.getElementById("signal").innerText = "Bullish";
 }else{
-
-document.getElementById("signal").innerText="Bearish";
-
+document.getElementById("signal").innerText = "Bearish";
 }
 
 }catch(e){
 
-document.getElementById("signal").innerText="Data Loading Error";
+document.getElementById("signal").innerText="Data Error";
 
 }
 
