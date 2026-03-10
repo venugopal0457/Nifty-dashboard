@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nifty OI Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+font-family: Arial;
+background:#111;
+color:white;
+text-align:center;
+}
+
+.card{
+background:#222;
+margin:15px;
+padding:20px;
+border-radius:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Nifty Options Dashboard</h2>
+
+<div class="card">
+<h3>Support Level</h3>
+<p id="support">Loading...</p>
+</div>
+
+<div class="card">
+<h3>Resistance Level</h3>
+<p id="resistance">Loading...</p>
+</div>
+
+<div class="card">
+<h3>Market Bias</h3>
+<p id="signal">Analyzing...</p>
+</div>
+
+<script>
+
+async function loadData(){
+
+let url="https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
+
+let response = await fetch(url);
+let data = await response.json();
+
+let records = data.records.data;
+
+let maxCall = 0;
+let maxPut = 0;
+let callStrike = 0;
+let putStrike = 0;
+
+records.forEach(r => {
+
+if(r.CE && r.CE.openInterest > maxCall){
+maxCall = r.CE.openInterest;
+callStrike = r.strikePrice;
+}
+
+if(r.PE && r.PE.openInterest > maxPut){
+maxPut = r.PE.openInterest;
+putStrike = r.strikePrice;
+}
+
+});
+
+document.getElementById("support").innerText = putStrike;
+document.getElementById("resistance").innerText = callStrike;
+
+if(putStrike > callStrike){
+document.getElementById("signal").innerText = "Bullish";
+}else{
+document.getElementById("signal").innerText = "Bearish";
+}
+
+}
+
+loadData();
+setInterval(loadData,30000);
+
+</script>
+
+</body>
+</html>
