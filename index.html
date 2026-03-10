@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>Nifty Options Dashboard</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+
 body{
 background:#111;
 color:white;
 font-family:Arial;
 text-align:center;
-padding-top:50px;
+padding-top:40px;
+}
+
+h1{
+margin-bottom:30px;
 }
 
 .card{
@@ -18,8 +25,15 @@ background:#222;
 padding:20px;
 margin:15px;
 border-radius:10px;
-font-size:20px;
+font-size:22px;
 }
+
+.value{
+font-size:28px;
+margin-top:10px;
+font-weight:bold;
+}
+
 </style>
 
 </head>
@@ -30,31 +44,31 @@ font-size:20px;
 
 <div class="card">
 Support Level
-<p id="support">Loading...</p>
+<div id="support" class="value">Loading...</div>
 </div>
 
 <div class="card">
 Resistance Level
-<p id="resistance">Loading...</p>
+<div id="resistance" class="value">Loading...</div>
 </div>
 
 <div class="card">
 Market Bias
-<p id="signal">Analyzing...</p>
+<div id="signal" class="value">Analyzing...</div>
 </div>
 
 <script>
 
 async function loadData(){
 
-let url="https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
+let url="https://api.allorigins.win/raw?url=https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
 
 try{
 
-let response = await fetch(url);
-let data = await response.json();
+let response=await fetch(url);
+let data=await response.json();
 
-let records = data.records.data;
+let records=data.records.data;
 
 let maxCall=0;
 let maxPut=0;
@@ -64,13 +78,17 @@ let putStrike=0;
 records.forEach(r=>{
 
 if(r.CE && r.CE.openInterest > maxCall){
+
 maxCall=r.CE.openInterest;
 callStrike=r.strikePrice;
+
 }
 
 if(r.PE && r.PE.openInterest > maxPut){
+
 maxPut=r.PE.openInterest;
 putStrike=r.strikePrice;
+
 }
 
 });
@@ -79,13 +97,19 @@ document.getElementById("support").innerText=putStrike;
 document.getElementById("resistance").innerText=callStrike;
 
 if(putStrike > callStrike){
+
 document.getElementById("signal").innerText="Bullish";
+
 }else{
+
 document.getElementById("signal").innerText="Bearish";
+
 }
 
 }catch(e){
-document.getElementById("signal").innerText="Data loading error";
+
+document.getElementById("signal").innerText="Data Loading Error";
+
 }
 
 }
@@ -97,4 +121,5 @@ setInterval(loadData,30000);
 </script>
 
 </body>
+
 </html>
