@@ -1,36 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Nifty Dashboard</title>
+<title>Nifty Options Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body {
-  background:#111;
-  color:white;
-  font-family:Arial;
-  text-align:center;
-  padding-top:80px;
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+padding-top:50px;
 }
-.box{
-  background:#222;
-  padding:20px;
-  margin:20px;
-  border-radius:10px;
+
+.card{
+background:#222;
+padding:20px;
+margin:15px;
+border-radius:10px;
+font-size:20px;
 }
 </style>
+
 </head>
 
 <body>
 
 <h1>Nifty Options Dashboard</h1>
 
-<div class="box">
-Page is working successfully 🚀
+<div class="card">
+Support Level
+<p id="support">Loading...</p>
 </div>
 
-<div class="box">
-Next step: Add OI analysis
+<div class="card">
+Resistance Level
+<p id="resistance">Loading...</p>
 </div>
+
+<div class="card">
+Market Bias
+<p id="signal">Analyzing...</p>
+</div>
+
+<script>
+
+async function loadData(){
+
+let url="https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY";
+
+try{
+
+let response = await fetch(url);
+let data = await response.json();
+
+let records = data.records.data;
+
+let maxCall=0;
+let maxPut=0;
+let callStrike=0;
+let putStrike=0;
+
+records.forEach(r=>{
+
+if(r.CE && r.CE.openInterest > maxCall){
+maxCall=r.CE.openInterest;
+callStrike=r.strikePrice;
+}
+
+if(r.PE && r.PE.openInterest > maxPut){
+maxPut=r.PE.openInterest;
+putStrike=r.strikePrice;
+}
+
+});
+
+document.getElementById("support").innerText=putStrike;
+document.getElementById("resistance").innerText=callStrike;
+
+if(putStrike > callStrike){
+document.getElementById("signal").innerText="Bullish";
+}else{
+document.getElementById("signal").innerText="Bearish";
+}
+
+}catch(e){
+document.getElementById("signal").innerText="Data loading error";
+}
+
+}
+
+loadData();
+
+setInterval(loadData,30000);
+
+</script>
 
 </body>
 </html>
